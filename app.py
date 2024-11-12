@@ -28,5 +28,27 @@ def predict_api():
     #return the output in json format
     return jsonify(output[0])
 
+# Feature names used in the training model
+feature_names = ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    # Get form data
+    data = {
+        'MedInc': float(request.form['MedInc']),
+        'HouseAge': float(request.form['HouseAge']),
+        'AveRooms': float(request.form['AveRooms']),
+        'AveBedrms': float(request.form['AveBedrms']),
+        'Population': float(request.form['Population']),
+        'AveOccup': float(request.form['AveOccup']),
+        'Latitude': float(request.form['Latitude']),
+        'Longitude': float(request.form['Longitude']),
+    }
+    # Convert the list into a DataFrame with correct feature names
+    data_df = pd.DataFrame([data])
+    new_data = scalar.transform(np.array(data_df).reshape(1,-1))
+    output = regmodel.predict(new_data)[0]
+    return render_template('home.html', predicted_text = "The House Price Predicted is {}".format(output))
+
 if __name__ == "__main__": 
     app.run(debug=True)
